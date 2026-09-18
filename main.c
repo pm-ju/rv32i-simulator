@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "cpu.h"
 #include "memory.h"
@@ -140,6 +141,7 @@ int main(int argc, char *argv[]) {
     uint64_t instruction_count = 0;
     const uint64_t MAX_INSTRUCTIONS = 100000000ULL; /* 100 million */
 
+    clock_t start_time = clock();
     while (cpu.running && instruction_count < MAX_INSTRUCTIONS) {
         /* ── FETCH ────────────────────────────────────────────── */
         /*
@@ -178,6 +180,8 @@ int main(int argc, char *argv[]) {
             printf("\n");
         }
     }
+    clock_t end_time = clock();
+    double seconds = (double)(end_time - start_time) / CLOCKS_PER_SEC;
 
     if (instruction_count >= MAX_INSTRUCTIONS) {
         printf("\n[SIMULATOR] Reached instruction limit (%llu). Halting.\n",
@@ -188,6 +192,12 @@ int main(int argc, char *argv[]) {
 
     printf("\n=== Simulation complete ===\n");
     printf("Instructions executed: %llu\n\n", (unsigned long long)instruction_count);
+    printf("Instructions executed: %llu\n", (unsigned long long)instruction_count);
+    if (seconds > 0.0) {
+        printf("Execution time: %.3f seconds\n", seconds);
+        printf("Performance: %.2f MIPS\n", (instruction_count / 1000000.0) / seconds);
+    }
+    printf("\nPC = 0x%08X\n", cpu.pc);
     cpu_dump(&cpu);
 
     return 0;
